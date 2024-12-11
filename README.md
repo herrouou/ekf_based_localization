@@ -5,3 +5,5 @@ catkin build
 sorce devel/setup.bash  
 roslaunch robot_localization ekf.launch  
 
+** data_publish is a package which publsihes GPS, imu and vio raw data **
+** path_publish can generate the paths of ground truth, raw gps and fused data **
