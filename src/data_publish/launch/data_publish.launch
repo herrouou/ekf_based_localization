@@ -1,0 +1,12 @@
+<launch>
+    <node name="sensor_data_publish" pkg="data_publish" type="sensor_data_publish" output="screen">
+        <param name="imu_csv_file" value="$(find data_publish)/data/imu.csv"/>
+        <param name="gps_csv_file" value="$(find data_publish)/data/gps.csv"/>
+        <param name="vio_csv_file" value="$(find data_publish)/data/odometry.csv"/>
+    </node>
+
+    <node name="kml_visual" pkg="data_publish" type="kml_visual" output="screen">
+        <param name="kml_file" value="$(find data_publish)/data/ground_truth.kml"/>
+    </node>
+</launch>
+
