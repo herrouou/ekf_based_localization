@@ -1,0 +1,76 @@
+<launch>
+
+    <include file="$(find data_publish)/launch/data_publish.launch"/>
+
+    <arg name="ukf_global_config_file" default="$(find robot_localization)/config/ukf_global.yaml"/>
+    <arg name="ukf_local_config_file" default="$(find robot_localization)/config/ukf_local.yaml"/>
+    <arg name="ukf_local_global_common_config_file" default="$(find robot_localization)/config/ukf_local_global_common.yaml"/>
+
+    <!--publish transform-->
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="bl_imu" args="0 0 0 0 0 0 base_link imu_link" />
+
+
+
+    <node pkg="robot_localization" type="ukf_localization_node" name="ukf_localization_node_global" output="screen">
+        <rosparam command="load" file="$(arg ukf_global_config_file)" />
+        <rosparam command="load" file="$(arg ukf_local_global_common_config_file)" />
+    </node>
+
+    <node pkg="robot_localization" type="ukf_localization_node" name="ukf_localization_node_local" output="screen">
+        <rosparam command="load" file="$(arg ukf_local_config_file)" />
+        <rosparam command="load" file="$(arg ukf_local_global_common_config_file)" />
+        <remap from="odometry/filtered" to="odometry/filtered_" />
+    </node>    
+
+
+
+    <!-- <arg name="navsat_config_file" default="$(find robot_localization)/config/navsat.yaml"/>  -->
+
+
+    <!-- <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" output="screen">
+        
+        <remap from="imu/data" to="imu_data" />
+        <remap from="gps/fix" to="gps_data" />
+
+        <param name="frequency" value="40"/>
+        
+        <param name="publish_filtered_gps" value="true"/>
+        
+
+
+        
+    </node>  -->
+
+
+    <node pkg="path_publish" type="path_publish" name="path_publish" output="screen"/>
+    
+
+    <arg name="rviz_config" default="$(find robot_localization)/rviz/1.rviz"/>
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_config)" output="screen"/>
+
+    
+
+</launch>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

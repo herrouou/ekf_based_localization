@@ -1,0 +1,76 @@
+<launch>
+
+
+
+    <arg name="ekf_global_config_file" default="$(find robot_localization)/config/ekf_global.yaml"/>
+    <arg name="ekf_local_config_file" default="$(find robot_localization)/config/ekf_local.yaml"/>
+    <arg name="ekf_local_global_common_config_file" default="$(find robot_localization)/config/ekf_local_global_common.yaml"/>
+
+    <!--publish transform-->
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="bl_imu" args="0 0 0 0 0 0 base_link imu_link" />
+
+
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node_global" output="screen">
+        <rosparam command="load" file="$(arg ekf_global_config_file)" />
+        <rosparam command="load" file="$(arg ekf_local_global_common_config_file)" />
+    </node>
+
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node_local" output="screen">
+        <rosparam command="load" file="$(arg ekf_local_config_file)" />
+        <rosparam command="load" file="$(arg ekf_local_global_common_config_file)" />
+        <remap from="odometry/filtered" to="odometry/filtered_" />
+    </node>    
+
+
+
+    <!-- <group ns="global">
+        <node pkg="robot_localization" type="ekf_localization_node" name="ekf" output="screen">
+            <rosparam command="load" file="$(arg ekf_global_config_file)" />
+            <rosparam command="load" file="$(arg ekf_local_global_common_config_file)" />
+        </node>
+    </group>
+
+
+    <group ns="local">
+        <node pkg="robot_localization" type="ekf_localization_node" name="ekf" output="screen">
+            <rosparam command="load" file="$(arg ekf_local_config_file)" />
+            <rosparam command="load" file="$(arg ekf_local_global_common_config_file)" />
+            <remap from="odometry/filtered" to="odometry/filtered_" />
+        </node>
+    </group>     -->
+
+
+
+
+    <include file="$(find data_publish)/launch/data_publish.launch"/>
+    <node pkg="path_publish" type="path_publish" name="path_publish" output="screen"/>
+    <arg name="rviz_config" default="$(find robot_localization)/rviz/1.rviz"/>
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_config)" output="screen"/>
+
+    
+
+</launch>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
