@@ -8,6 +8,7 @@ Panels:
         - /Status1
         - /Odometry1
         - /Axes1
+        - /Path1
       Splitter Ratio: 0.5
     Tree Height: 549
   - Class: rviz/Selection
@@ -95,6 +96,29 @@ Visualization Manager:
       Radius: 2
       Reference Frame: map
       Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 25; 255; 0
+      Enabled: true
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 0.30000001192092896
+      Line Style: Lines
+      Line Width: 0.029999999329447746
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.029999999329447746
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic: /vio_visual/vio_path
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -123,7 +147,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 38.95975875854492
+      Distance: 1690.5311279296875
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -160,4 +184,4 @@ Window Geometry:
     collapsed: false
   Width: 1267
   X: 73
-  Y: 30
+  Y: 27

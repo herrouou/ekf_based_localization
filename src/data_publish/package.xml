@@ -57,6 +57,7 @@
   <build_depend>cmake_modules</build_depend>
   <build_depend>nav_msgs</build_depend>
   <build_depend>tf2_ros</build_depend>
+  <build_depend>geo_transform</build_depend>
 
   
   
@@ -68,6 +69,7 @@
   <build_export_depend>rosbag</build_export_depend>
   <build_export_depend>nav_msgs</build_export_depend>
   <build_export_depend>tf2_ros</build_export_depend>
+  <build_export_depend>geo_transform</build_export_depend>
 
   <exec_depend>roscpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
@@ -76,6 +78,7 @@
   <exec_depend>nav_msgs</exec_depend>
   <exec_depend>tinyxml</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>geo_transform</exec_depend>
 
  
 

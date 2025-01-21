@@ -104,78 +104,93 @@ std::vector<ImuData> readImu(const std::string& filename){
         std::getline(ss, field, ',');
         data.timestamp = std::stod(field);
 
+
+
+        double a_x, a_y, a_z;     
+        std::getline(ss, field, ',');
+        a_x = std::stof(field);
+        std::getline(ss, field, ',');
+        a_y = std::stof(field);
+        std::getline(ss, field, ',');
+        a_z = std::stof(field);
+
+
+        double w_x, w_y, w_z;  
+        std::getline(ss, field, ',');
+        w_x = std::stof(field);                
+        std::getline(ss, field, ',');
+        w_y = std::stof(field);
+        std::getline(ss, field, ',');
+        w_z = std::stof(field);
+
+        float qx, qy, qz, qw;
+        std::getline(ss, field, ',');
+        qx = std::stof(field);                
+        std::getline(ss, field, ',');
+        qy = std::stof(field);
+        std::getline(ss, field, ',');
+        qz = std::stof(field);        
+        std::getline(ss, field, ',');
+        qw = std::stof(field);  
+
+
+        // data.x = x;
+        // data.y = y;
+        // data.z = z;
+        // data.w = w;
+
+        data.x = 0.70710678f * (qx - qy);
+        data.y = 0.70710678f * (qx + qy);
+        data.z = 0.70710678f * (qz + qw);
+        data.w = 0.70710678f * (qw - qz);
+
+        qx = data.x;
+        qy = data.y;
+        qz = data.z;
+        qw = data.w;
+
+
+
+        double r11 = 1.0 - 2.0 * (qy * qy + qz * qz);
+        double r12 = 2.0 * (qx * qy - qz * qw);
+        double r13 = 2.0 * (qx * qz + qy * qw);
+
+        double r21 = 2.0 * (qx * qy + qz * qw);
+        double r22 = 1.0 - 2.0 * (qx * qx + qz * qz);
+        double r23 = 2.0 * (qy * qz - qx * qw);
+
+        double r31 = 2.0 * (qx * qz - qy * qw);
+        double r32 = 2.0 * (qy * qz + qx * qw);
+        double r33 = 1.0 - 2.0 * (qx * qx + qy * qy);
+
+
+        // 将加速度从A坐标系转换到世界坐标系
+        data.a_x = r11 * a_x + r12 * a_y + r13 * a_z;
+        data.a_y = r21 * a_x + r22 * a_y + r23 * a_z;
+        data.a_z = r31 * a_x + r32 * a_y + r33 * a_z;
+
+        // 将角速度从A坐标系转换到世界坐标系
+        data.w_x = r11 * w_x + r12 * w_y + r13 * w_z;
+        data.w_x = r21 * w_x + r22 * w_y + r23 * w_z;
+        data.w_x = r31 * w_x + r32 * w_y + r33 * w_z;
+        // std::array<float, 4> quat = {data.x, data.y, data.z, data.w};
+
         
-        std::getline(ss, field, ',');
-        data.a_x = std::stof(field);
-        std::getline(ss, field, ',');
-        data.a_y = std::stof(field);
-        std::getline(ss, field, ',');
-        data.a_z = std::stof(field);
+        // std::array<float, 3> accel = {data.a_x, data.a_y, data.a_z};
+        // std::array<float, 3> gyro = {data.w_x, data.w_y, data.w_z};
+        // std::array<float, 4> quatInverse = {-quat[0], -quat[1], -quat[2], quat[3]};
 
-
-
-        std::getline(ss, field, ',');
-        data.w_x = std::stof(field);                
-        std::getline(ss, field, ',');
-        data.w_y = std::stof(field);
-        std::getline(ss, field, ',');
-        data.w_z = std::stof(field);
-
-        float x, y, z, w;
-        std::getline(ss, field, ',');
-        x = std::stof(field);                
-        std::getline(ss, field, ',');
-        y = std::stof(field);
-        std::getline(ss, field, ',');
-        z = std::stof(field);        
-        std::getline(ss, field, ',');
-        w = std::stof(field);  
-
-        // 定义旋转四元数 (绕 Z 轴逆时针旋转 90°)
-        float angle_degrees = 90.0f;
-        float angle_radians = angle_degrees * M_PI / 180.0f;
-        float sin_half = std::sin(angle_radians / 2.0f); // sin(45°) = √2/2
-        float cos_half = std::cos(angle_radians / 2.0f); // cos(45°) = √2/2
-
-        float rx = 0, ry = 0, rz = sin_half, rw = cos_half;
-
-        // 旋转四元数的共轭
-        float rx_conj = -rx, ry_conj = -ry, rz_conj = -rz, rw_conj = rw;
-
-        // 计算 q_mid = q_rotation * q_A
-        float mid_x = rw * x + rx * w + ry * z - rz * y;
-        float mid_y = rw * y - rx * z + ry * w + rz * x;
-        float mid_z = rw * z + rx * y - ry * x + rz * w;
-        float mid_w = rw * w - rx * x - ry * y - rz * z;
-
-        // 计算 q_B = q_mid * q_rotation⁻¹
-        data.x = mid_w * rx_conj + mid_x * rw_conj + mid_y * rz_conj - mid_z * ry_conj;
-        data.y = mid_w * ry_conj - mid_x * rz_conj + mid_y * rw_conj + mid_z * rx_conj;
-        data.z = mid_w * rz_conj + mid_x * ry_conj - mid_y * rx_conj + mid_z * rw_conj;
-        data.w = mid_w * rw_conj - mid_x * rx_conj - mid_y * ry_conj - mid_z * rz_conj;
-
-        // float yy = data.y;
-        // data.y = data.x;
-        // data.x = yy;
-        // data.z = -data.z;
-        std::array<float, 4> quat = {data.x, data.y, data.z, data.w};
+        // auto rotatedAccel = rotateVectorByQuaternion(accel, quatInverse);
+        // auto rotatedGyro = rotateVectorByQuaternion(gyro, quatInverse);
 
         
-        std::array<float, 3> accel = {data.a_x, data.a_y, data.a_z};
-        std::array<float, 3> gyro = {data.w_x, data.w_y, data.w_z};
-        std::array<float, 4> quatInverse = {-quat[0], -quat[1], -quat[2], quat[3]};
+        // data.a_x = rotatedAccel[0];
+        // data.a_y = rotatedAccel[1];
+        // data.a_z = -rotatedAccel[2];
 
-        auto rotatedAccel = rotateVectorByQuaternion(accel, quatInverse);
-        auto rotatedGyro = rotateVectorByQuaternion(gyro, quatInverse);
-
-        
-        data.a_x = rotatedAccel[0];
-        data.a_y = rotatedAccel[1];
-        data.a_z = -rotatedAccel[2];
-
-        data.w_x = rotatedGyro[0];
-        data.w_y = rotatedGyro[1];
-        data.w_z = rotatedGyro[2];
+        // data.w_x = rotatedGyro[0];
+        // data.w_y = rotatedGyro[1];
+        // data.w_z = rotatedGyro[2];
         imu_data.push_back(data);
 
 
@@ -184,7 +199,7 @@ std::vector<ImuData> readImu(const std::string& filename){
 
 }
 
-std::vector<GpsData> readGps(const std::string& filename){
+std::vector<GpsData> readGps(const std::string& filename, double first_time){
     
     std::vector<GpsData> gps_data;
     std::fstream file(filename);
@@ -200,6 +215,8 @@ std::vector<GpsData> readGps(const std::string& filename){
 
         std::getline(ss, field, ',');
         data.timestamp = std::stod(field);
+        if (data.timestamp < first_time) continue;
+
         std::getline(ss, field, ',');
         data.latitude = std::stof(field);
         std::getline(ss, field, ',');
@@ -209,8 +226,9 @@ std::vector<GpsData> readGps(const std::string& filename){
         std::getline(ss, field, ',');
         data.horacc = std::stof(field);
         std::getline(ss, field, ',');
-        data.veracc = std::stof(field);
-        gps_data.push_back(data);
+        data.veracc = std::stof(field);  
+        gps_data.push_back(data);   
+
     }
     return gps_data;
 
@@ -297,6 +315,7 @@ void publishData (const std::vector<ImuData>& imu_data, const std::vector<GpsDat
     ros::Publisher gps_pub = nh.advertise<sensor_msgs::NavSatFix>("gps_data", 10);
     ros::Publisher vio_pub = nh.advertise<nav_msgs::Odometry>("vio_odom", 10);
     ros::Publisher imu_orientation_pub = nh.advertise<nav_msgs::Odometry>("imu_orientation", 10);
+    ros::Publisher vio_test_pub = nh.advertise<nav_msgs::Odometry>("vio_test", 10);
 
     size_t imu_index = 0, gps_index = 0, vio_index = 0;
     size_t imu_data_size = imu_data.size();
@@ -329,7 +348,7 @@ void publishData (const std::vector<ImuData>& imu_data, const std::vector<GpsDat
             imu_msg.header.frame_id = "imu_link";
             
             
-            // transfer the imu_data from  to ENU
+            
             imu_msg.orientation.x = imu_data[imu_index].x;
             imu_msg.orientation.y = imu_data[imu_index].y;
             imu_msg.orientation.z = imu_data[imu_index].z;
@@ -337,23 +356,27 @@ void publishData (const std::vector<ImuData>& imu_data, const std::vector<GpsDat
 
             
 
-            orientation.header.frame_id = "odom";
-            orientation.child_frame_id = "base_link";
+            orientation.header.frame_id = "map";
+            orientation.child_frame_id = "kk";
             orientation.pose.pose.orientation.x = imu_data[imu_index].x;
             orientation.pose.pose.orientation.y = imu_data[imu_index].y;
             orientation.pose.pose.orientation.z = imu_data[imu_index].z;
             orientation.pose.pose.orientation.w = imu_data[imu_index].w;
+            imu_orientation_pub.publish(orientation);
 
 
 
-            imu_msg.orientation_covariance[0] = 0.05;
-            imu_msg.orientation_covariance[0] = 0.05;
-            imu_msg.orientation_covariance[4] = 0.05;
-            imu_msg.orientation_covariance[8] = 0.05;
+            imu_msg.orientation_covariance[0] = 0.005;
+            imu_msg.orientation_covariance[0] = 0.005;
+            imu_msg.orientation_covariance[4] = 0.005;
+            imu_msg.orientation_covariance[8] = 0.005;
 
             imu_msg.angular_velocity.x = imu_data[imu_index].w_x;
             imu_msg.angular_velocity.y = imu_data[imu_index].w_y;
             imu_msg.angular_velocity.z = imu_data[imu_index].w_z;
+
+            // float k = sqrt(pow(imu_data[imu_index].a_x,2) + pow(imu_data[imu_index].a_z,2) + pow(imu_data[imu_index].a_y,2));
+            // ROS_INFO("imu      %f",imu_data[imu_index].a_z);
             
             imu_msg.angular_velocity_covariance[0] = 0.05;
             imu_msg.angular_velocity_covariance[4] = 0.05;
@@ -366,42 +389,50 @@ void publishData (const std::vector<ImuData>& imu_data, const std::vector<GpsDat
             imu_msg.linear_acceleration_covariance[0] = 0.025;
             imu_msg.linear_acceleration_covariance[4] = 0.025;
             imu_msg.linear_acceleration_covariance[8] = 0.025;
-
+            
 
 
             imu_pub.publish(imu_msg);
-            // imu_orientation_pub.publish(orientation);
+            
 
             imu_index++;
             
         } 
 
         if (gps_index < gps_data_size && gps_wait <=0){
-            sensor_msgs::NavSatFix gps_msg; 
 
-            gps_msg.header.stamp = ros::Time(gps_data[gps_index].timestamp);
+            // if (gps_data[gps_index].horacc > 25 || gps_data[gps_index].horacc < 0 || gps_data[gps_index].veracc > 25 || gps_data[gps_index].veracc < 0){
+            //     ROS_INFO("The gps data in timestamp: %f has large covariance, ignore it", gps_data[gps_index].timestamp);
+            //     gps_index++;
+            // }else{
+                sensor_msgs::NavSatFix gps_msg; 
 
-            gps_msg.header.frame_id = "base_link";
-            gps_msg.altitude = gps_data[gps_index].altitude;
-            gps_msg.longitude = gps_data[gps_index].longitude;
-            gps_msg.latitude = gps_data[gps_index].latitude;
-            gps_msg.position_covariance[0] = gps_data[gps_index].horacc;
-            gps_msg.position_covariance[4] = gps_data[gps_index].horacc;
-            gps_msg.position_covariance[8] = gps_data[gps_index].veracc;
+                gps_msg.header.stamp = ros::Time(gps_data[gps_index].timestamp);
 
-            // gps_msg.position_covariance[0] = 0.5;
-            // gps_msg.position_covariance[4] = 0.5;
-            // gps_msg.position_covariance[8] = 0.5;
-            gps_pub.publish(gps_msg);
-            ROS_INFO("Published GPS data at timestamp: %f", gps_data[gps_index].timestamp);
-            gps_index++;
+                gps_msg.header.frame_id = "base_link";
+                gps_msg.altitude = 0;//gps_data[gps_index].altitude;
+                gps_msg.longitude = gps_data[gps_index].longitude;
+                gps_msg.latitude = gps_data[gps_index].latitude;
+                // gps_msg.position_covariance[0] = gps_data[gps_index].horacc;
+                // gps_msg.position_covariance[4] = gps_data[gps_index].horacc;
+                // gps_msg.position_covariance[8] = gps_data[gps_index].veracc;
+    
+                gps_msg.position_covariance[0] = 20;
+                gps_msg.position_covariance[4] = 20;
+                gps_msg.position_covariance[8] = 10;
+                gps_pub.publish(gps_msg);
+                // ROS_INFO("Published GPS data at timestamp: %f", gps_data[gps_index].timestamp);
+                gps_index++;
+            // }
+
         } 
 
         if (vio_index < vio_data_size && vio_wait <= 0){
             nav_msgs::Odometry vio_msg;
+            nav_msgs::Odometry vio_test;
 
             vio_msg.header.stamp = ros::Time(vio_data[vio_index].timestamp);
-            vio_msg.header.frame_id = "odom";
+            vio_msg.header.frame_id = "map";
             vio_msg.child_frame_id = "base_link";
 
             vio_msg.pose.pose.position.x = vio_data[vio_index].px;
@@ -412,31 +443,22 @@ void publishData (const std::vector<ImuData>& imu_data, const std::vector<GpsDat
             vio_msg.pose.pose.orientation.y = vio_data[vio_index].y;
             vio_msg.pose.pose.orientation.z = vio_data[vio_index].z;
             vio_msg.pose.pose.orientation.w = vio_data[vio_index].w;
-
-            vio_msg.pose.covariance[0] = 5;// 
-            vio_msg.pose.covariance[7] = 5; // y
-            vio_msg.pose.covariance[14] = 2; // z
-
             
 
-            
-            vio_msg.pose.covariance[21] = 0.02; // roll
-            vio_msg.pose.covariance[28] = 0.02; // pitch
-            vio_msg.pose.covariance[35] = 0.02; // yaw
+            vio_msg.pose.covariance[0] = 2;// 
+            vio_msg.pose.covariance[7] = 2; // y
+            vio_msg.pose.covariance[14] = 1; // z
+
+                
+
+                
+            vio_msg.pose.covariance[21] = 2; // roll
+            vio_msg.pose.covariance[28] = 2; // pitch
+            vio_msg.pose.covariance[35] = 2; // yaw
 
 
 
-            vio_msg.twist.covariance[0] = -1;
-            vio_msg.twist.covariance[7] = -1;
-            vio_msg.twist.covariance[14] = -1;
-
-            vio_msg.twist.covariance[21] = -1;
-            vio_msg.twist.covariance[28] = -1;
-            vio_msg.twist.covariance[35] = -1;            
-            
-
-
-            vio_pub.publish(vio_msg);
+             vio_pub.publish(vio_msg);
             // ROS_INFO("Published VIO data at timestamp: %f", vio_data[vio_index].timestamp);
             vio_index++;
         }
@@ -458,6 +480,7 @@ int main(int argc, char** argv){
     std::string imu_csv_file;
     std::string gps_csv_file;
     std::string vio_csv_file;
+    double first_time;
 
 
 
@@ -469,9 +492,9 @@ int main(int argc, char** argv){
 
 
     std::vector<ImuData> imu_data = readImu(imu_csv_file);
-    std::vector<GpsData> gps_data = readGps(gps_csv_file);
+    first_time = imu_data[0].timestamp;
     std::vector<VIOdata> vio_data = readVIO(vio_csv_file);
-
+    std::vector<GpsData> gps_data = readGps(gps_csv_file, first_time);
 
 
     if (imu_data.empty() || gps_data.empty() || vio_data.empty()){
@@ -479,7 +502,7 @@ int main(int argc, char** argv){
         return 1;
     }
 
-
+// 
 
     publishData(imu_data, gps_data, vio_data);
     return 0;

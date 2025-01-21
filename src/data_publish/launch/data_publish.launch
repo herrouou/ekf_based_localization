@@ -7,6 +7,11 @@
 
     <node name="kml_visual" pkg="data_publish" type="kml_visual" output="screen">
         <param name="kml_file" value="$(find data_publish)/data/ground_truth.kml"/>
+        <param name="time_file" value="$(find data_publish)/data/time.txt"/>
     </node>
+
+    <node name="gps_enu" pkg="data_publish" type="gps_enu_node" output="screen">   
+    </node>
+
 </launch>
 
