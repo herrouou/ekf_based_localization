@@ -1,22 +1,52 @@
-# ROS Robot Localization
+Robot Localization Project
+This project provides robot localization functionality using ROS. It is compatible with both ROS Melodic (Ubuntu 18.04) and ROS Noetic (Ubuntu 20.04).
 
-This project is based on ROS and supports the following versions:
-- **Melodic** (Ubuntu 18.04)
-- **Noetic** (Ubuntu 20.04)
+Supported ROS versions: Melodic (Ubuntu 18.04) and Noetic (Ubuntu 20.04).
 
-## Environment Setup
+Install the required dependencies:
 
-Ensure that you have the corresponding ROS version (Melodic or Noetic) installed along with [catkin_tools](https://catkin-tools.readthedocs.io/en/latest/).
+bash
+Kopieren
+sudo apt-get install libgeographic-dev
+sudo apt-get install ros-$(rosversion -d)-geographic-msgs
+Use the standard ROS catkin build process. First, navigate to your catkin workspace:
 
-install the following dependencies:
-   ```bash
-   sudo apt-get install libgeographic-dev
-   ```bash
-   sudo apt-get install ros-$(rosversion -d)-geographic-msgs
+bash
+Kopieren
+cd ~/catkin_ws
+Then, clone or place this repository in the src folder:
 
-## Build Instructions
+bash
+Kopieren
+cd ~/catkin_ws/src
+git clone <this-repository-url>
+Finally, build the workspace:
 
-1. Clone this repository into your catkin workspace (e.g., `~/catkin_ws/src`).
-2. Navigate to the workspace root directory:
-   ```bash
-   cd ~/catkin_ws
+bash
+Kopieren
+cd ~/catkin_ws
+catkin build
+Within the data_publish package, there is a data folder. You need to copy and paste the dataset folders/files from data_publish/data into the same data folder to ensure they are in the correct location.
+
+For example, your folder structure should look like this:
+
+kotlin
+Kopieren
+data_publish/
+ ┣━ data/
+    ┣━ folder1/
+    ┣━ folder2/
+    ┗━ ...
+Make sure all required data files/folders are placed inside the data directory.
+
+To run the robot localization node, use the following command:
+
+bash
+Kopieren
+roslaunch robot_localization ekf.launch
+This command starts the Extended Kalman Filter (EKF) for localization.
+
+Feel free to open issues or submit pull requests to help improve this project.
+
+This project is distributed under the MIT License.
+
