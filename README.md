@@ -22,7 +22,6 @@ After installing the dependencies, you can build the package using catkin_make o
 catkin_make
 ```
 or
-
 ```bash
 catkin build
 ```
