@@ -24,7 +24,7 @@ Then navigate to your the workspace:
 ```bash
 cd ekf_based_localization
 ```
-And you can build the package using catkin_make or catkin build. Navigate to your catkin workspace and run:
+And you can build the package using catkin_make or catkin build. Run:
 
 ```bash
 catkin_make
@@ -33,3 +33,15 @@ or
 ```bash
 catkin build
 ```
+## Data folder changing
+
+Within the data_publish package, there is a data folder.
+
+```bash
+data_publish/
+ ┣━ data/
+    ┣━ folder1/
+    ┣━ folder2/
+    ┗━ ...
+```
+Copy files in one of the folders and paste them into the data folder.
