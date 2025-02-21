@@ -1,8 +1,16 @@
-# ekf_based_localization
+# ROS Robot Localization
 
-ubuntu 18 + ROS medodic, and it uses the source code of robot_localization  
-catkin build  
-sorce devel/setup.bash  
-roslaunch robot_localization ekf.launch  
-**1.data_publish is a package which publsihes GPS, imu and vio raw data**  
-**2.path_publish can generate the paths of ground truth, raw gps and fused data**
+This project is based on ROS and supports the following versions:
+- **Melodic** (Ubuntu 18.04)
+- **Noetic** (Ubuntu 20.04)
+
+## Environment Setup
+
+Ensure that you have the corresponding ROS version (Melodic or Noetic) installed along with [catkin_tools](https://catkin-tools.readthedocs.io/en/latest/).
+
+## Build Instructions
+
+1. Clone this repository into your catkin workspace (e.g., `~/catkin_ws/src`).
+2. Navigate to the workspace root directory:
+   ```bash
+   cd ~/catkin_ws
