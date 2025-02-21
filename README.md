@@ -1,6 +1,6 @@
 # ROS Robot Localization Package
 
-This repository contains a ROS-based robot localization package that supports both ROS Melodic (Ubuntu 18.04) and ROS Noetic (Ubuntu 20.04). The package utilizes an Extended Kalman Filter (EKF) for sensor fusion and localization.
+This repository contains a ROS-based robot localization package of the sensor fusion for localization using iPhone. And it supports both ROS Melodic (Ubuntu 18.04) and ROS Noetic (Ubuntu 20.04). The package utilizes an Extended Kalman Filter (EKF) for sensor fusion and localization.
 
 ## ROS Version
 - **ROS Melodic** (Ubuntu 18.04)
