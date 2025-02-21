@@ -138,6 +138,8 @@ namespace FilterUtilities
       rotation += TAU;
     }
 
+    
+
     return rotation;
   }
 

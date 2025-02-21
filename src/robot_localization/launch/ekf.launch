@@ -1,55 +1,38 @@
 <launch>
 
-
+    
 
     <arg name="ekf_global_config_file" default="$(find robot_localization)/config/ekf_global.yaml"/>
     <arg name="ekf_local_config_file" default="$(find robot_localization)/config/ekf_local.yaml"/>
     <arg name="ekf_local_global_common_config_file" default="$(find robot_localization)/config/ekf_local_global_common.yaml"/>
 
     <!--publish transform-->
-
+    <include file="$(find data_publish)/launch/data_publish.launch"/>
     <node pkg="tf2_ros" type="static_transform_publisher" name="bl_imu" args="0 0 0 0 0 0 base_link imu_link" />
 
 
 
-    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node_global" output="screen">
-        <rosparam command="load" file="$(arg ekf_global_config_file)" />
-        <rosparam command="load" file="$(arg ekf_local_global_common_config_file)" />
-    </node>
+
 
     <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node_local" output="screen">
         <rosparam command="load" file="$(arg ekf_local_config_file)" />
         <rosparam command="load" file="$(arg ekf_local_global_common_config_file)" />
         <remap from="odometry/filtered" to="odometry/filtered_" />
     </node>    
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node_global" output="screen">
+        <rosparam command="load" file="$(arg ekf_global_config_file)" />
+        <rosparam command="load" file="$(arg ekf_local_global_common_config_file)" />
+    </node>
 
 
-
-    <!-- <group ns="global">
-        <node pkg="robot_localization" type="ekf_localization_node" name="ekf" output="screen">
-            <rosparam command="load" file="$(arg ekf_global_config_file)" />
-            <rosparam command="load" file="$(arg ekf_local_global_common_config_file)" />
-        </node>
-    </group>
-
-
-    <group ns="local">
-        <node pkg="robot_localization" type="ekf_localization_node" name="ekf" output="screen">
-            <rosparam command="load" file="$(arg ekf_local_config_file)" />
-            <rosparam command="load" file="$(arg ekf_local_global_common_config_file)" />
-            <remap from="odometry/filtered" to="odometry/filtered_" />
-        </node>
-    </group>     -->
-
-
-
-
-    <include file="$(find data_publish)/launch/data_publish.launch"/>
+    
     <node pkg="path_publish" type="path_publish" name="path_publish" output="screen"/>
     <arg name="rviz_config" default="$(find robot_localization)/rviz/1.rviz"/>
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_config)" output="screen"/>
 
-    
+    <node name="rqt_plot" pkg="rqt_plot" type="rqt_plot" args="/global_fusion_error /local_fusion_error_relative /ARKit_error /gps_error" output="screen"/>
+    <node name="rqt_plot2" pkg="rqt_plot" type="rqt_plot" args="/gps_x /vio_x /fusion_x" output="screen"/>
+    <node name="rqt_plot3" pkg="rqt_plot" type="rqt_plot" args="/gps_y /vio_y /fusion_y" output="screen"/>
 
 </launch>
 

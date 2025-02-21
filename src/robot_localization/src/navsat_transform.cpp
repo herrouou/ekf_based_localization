@@ -214,7 +214,6 @@ namespace RobotLocalization
       nav_msgs::Odometry gps_odom;
       if (prepareGpsOdometry(gps_odom))
       {
-
         gps_odom_pub_.publish(gps_odom);
       }
 
@@ -728,7 +727,6 @@ namespace RobotLocalization
   {
     world_frame_id_ = msg->header.frame_id;
     base_link_frame_id_ = msg->child_frame_id;
-   
 
     if (!transform_good_ && !use_manual_datum_)
     {

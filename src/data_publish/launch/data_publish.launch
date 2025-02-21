@@ -3,6 +3,10 @@
         <param name="imu_csv_file" value="$(find data_publish)/data/imu.csv"/>
         <param name="gps_csv_file" value="$(find data_publish)/data/gps.csv"/>
         <param name="vio_csv_file" value="$(find data_publish)/data/odometry.csv"/>
+
+        <param name="if_use_intial_gps" value="false"/>
+        <param name="intial_gps_longtitude" value="11.57373"/>
+        <param name="intial_gps_latitude" value="48.17053"/>
     </node>
 
     <node name="kml_visual" pkg="data_publish" type="kml_visual" output="screen">

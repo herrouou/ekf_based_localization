@@ -5,6 +5,13 @@
 #include <sensor_msgs/NavSatFix.h>
 #include <visualization_msgs/Marker.h>
 
+#include <std_msgs/Float64.h>
+#include <thread>
+#include <chrono>
+#include <mutex>
+
+#include <cmath>
+
 #include <geo_transform/geo_transform.h>
 
 class PathPublisher
@@ -23,11 +30,24 @@ public:
         filtered_position_marker_pub_ = nh_.advertise<visualization_msgs::Marker>("filtered_position_markers", 1000);
         raw_gps_marker_pub_ = nh_.advertise<visualization_msgs::Marker>("gps_raw_markers", 1000);
 
+
+        fusion_error_pub = nh_.advertise<std_msgs::Float64>("global_fusion_error", 10);
+        fusion_error_relative_pub = nh_.advertise<std_msgs::Float64>("local_fusion_error_relative", 10);
+        vio_error_relative_pub = nh_.advertise<std_msgs::Float64>("ARKit_error", 10);
+        gps_error_relative_pub = nh_.advertise<std_msgs::Float64>("gps_error", 10);
+        gps_x_relative_pub = nh_.advertise<std_msgs::Float64>("gps_x", 10);
+        gps_y_relative_pub = nh_.advertise<std_msgs::Float64>("gps_y", 10);
+        vio_x_relative_pub = nh_.advertise<std_msgs::Float64>("vio_x", 10);
+        vio_y_relative_pub = nh_.advertise<std_msgs::Float64>("vio_y", 10);
+        fusion_x_relative_pub = nh_.advertise<std_msgs::Float64>("fusion_x", 10);
+        fusion_y_relative_pub = nh_.advertise<std_msgs::Float64>("fusion_y", 10);
+        //
+
         // Initialize subscribers
         filtered_odom_global_sub_ = nh_.subscribe("odometry/filtered", 10, &PathPublisher::filtered_odom_global_Callback, this);
         filtered_odom_local_sub_ = nh_.subscribe("odometry/filtered_", 10, &PathPublisher::filtered_odom_local_Callback, this);
         raw_gps_sub_ = nh_.subscribe("gps_data", 10, &PathPublisher::raw_gps_Callback, this);
-        kml_path_raw_sub_ = nh_.subscribe("kml_path_raw", 10, &PathPublisher::kml_path_raw_Callback, this);
+        kml_path_raw_sub_ = nh_.subscribe("kml_path_interpolation", 10, &PathPublisher::kml_path_raw_Callback, this);
         vio_sub_ = nh_.subscribe("vio_odom", 10, &PathPublisher::vio_path_Callback, this);
 
         // Initialize Path headers
@@ -59,14 +79,23 @@ public:
         fusion_error_relative = 0;
         fusion_error_relative_average = 0;
         fusion_error_relative_sum = 0;
+        vio_error_relative = 0;
+        vio_error_relative_average = 0;
+        vio_error_relative_sum = 0;
+        gps_error_relative = 0;
+        gps_error_relative_average = 0;
+        gps_error_relative_sum = 0;
 
-        vio_error = 0;
-        gps_error = 0;
+
 
         // Initialize ROS Timer for publishing markers
         // Timer runs at 100 Hz
         timer_ = nh_.createTimer(ros::Duration(0.01), &PathPublisher::timerCallback, this);
+
+
+
     }
+
 
     void filtered_odom_global_Callback(const nav_msgs::Odometry::ConstPtr& msg)
     {
@@ -126,6 +155,7 @@ public:
 
         geometry_msgs::PoseStamped pose;
         pose.header = msg->header;
+        pose.header.stamp = ros::Time::now();
 
         double e, n, u;
         geo_trans_->lla2enu(msg->latitude, msg->longitude, msg->altitude, e, n, u);
@@ -138,7 +168,11 @@ public:
 
         raw_gps_path_.header.stamp = msg->header.stamp;
         raw_gps_path_.poses.push_back(pose);
-        raw_gps_path_pub_.publish(raw_gps_path_);        
+        raw_gps_path_pub_.publish(raw_gps_path_);   
+
+
+
+         
     }
 
     void kml_path_raw_Callback(const nav_msgs::Path::ConstPtr& msg)
@@ -157,6 +191,8 @@ public:
                 initializeKmlPublishing();
             }
         }
+
+
     }
 
     void vio_path_Callback(const nav_msgs::Odometry::ConstPtr& msg)
@@ -169,6 +205,8 @@ public:
         vio_path_.poses.push_back(pose);
         vio_path_pub_.publish(vio_path_);       
     }
+
+
 
 private:
     ros::NodeHandle nh_;
@@ -183,6 +221,20 @@ private:
     ros::Publisher ground_truth_marker_pub_;
     ros::Publisher filtered_position_marker_pub_;
     ros::Publisher raw_gps_marker_pub_;
+
+    ros::Publisher fusion_error_pub;
+    ros::Publisher fusion_error_relative_pub;
+    ros::Publisher vio_error_relative_pub;
+    ros::Publisher gps_error_relative_pub;
+    ros::Publisher gps_x_relative_pub;
+    ros::Publisher gps_y_relative_pub;
+    ros::Publisher vio_x_relative_pub;
+    ros::Publisher vio_y_relative_pub;
+    ros::Publisher fusion_x_relative_pub;
+    ros::Publisher fusion_y_relative_pub;
+
+    std::thread publish_thread;
+    std::mutex data_mutex;
     
 
     // Subscribers
@@ -222,14 +274,31 @@ private:
 
 
     double fusion_error;
+    std::vector<double> fusion_error_all;
     double fusion_error_average;
     int fusion_error_sum;
+
     double fusion_error_relative;
+    std::vector<double> fusion_error_relative_all;
     double fusion_error_relative_average;
     int fusion_error_relative_sum;
 
-    double vio_error;
-    double gps_error;
+    double vio_error_relative;
+    std::vector<double> vio_error_relative_all;
+    double vio_error_relative_average;
+    int vio_error_relative_sum; 
+
+
+    std::vector<double> fusion_and_vio_error_time;  
+
+    double gps_error_relative;
+    std::vector<double> gps_error_relative_all;
+    double gps_error_relative_average;
+    int gps_error_relative_sum; 
+
+    std::vector<double> gps_error_time;  
+
+
 
     // Geo transformation
     std::shared_ptr<geo_transform::GeoTransform> geo_trans_;
@@ -271,17 +340,21 @@ private:
             marker.scale.x = 3.5;
             marker.scale.y = 3.5;
             marker.scale.z = 3.5;
-            marker.color.r = 0.0f;
-            marker.color.g = 1.0f;
+            marker.color.r = 1.0f;
+            marker.color.g = 0.0f;
             marker.color.b = 0.0f;
             marker.color.a = 1.0f;
         }
         else
         {
             // Subsequent points color and size
-            marker.scale.x = 2.2;
-            marker.scale.y = 2.2;
-            marker.scale.z = 2.2;
+            marker.scale.x = 1.5;
+            marker.scale.y = 1.5;
+            marker.scale.z = 1.5;
+            // marker.scale.x = 3.5;
+            // marker.scale.y = 3.5;
+            // marker.scale.z = 3.5;
+
             marker.color.r = 1.0f;
             marker.color.g = 0.0f;
             marker.color.b = 0.0f;
@@ -345,13 +418,13 @@ private:
 
 
         
-        marker.scale.x = 1.0;
-        marker.scale.y = 1.0;
-        marker.scale.z = 1.0;
-        marker.color.r = 0.5f;
-        marker.color.g = 0.5f;
+        marker.scale.x = 1.5;
+        marker.scale.y = 1.5;
+        marker.scale.z = 1.5;
+        marker.color.r = 1.0f;
+        marker.color.g = 1.0f;
         marker.color.b = 0.0f;
-        marker.color.a = 1.0f;
+        marker.color.a = 1.0f;  // 确保颜色不透明
 
         marker.lifetime = ros::Duration(0); // Forever
 
@@ -409,40 +482,116 @@ private:
                 
 
                 if (kml_current_pose_index_!=0){
+
                     const geometry_msgs::PoseStamped& last_pose = filtered_odom_global_path_.poses.back();
                     double x = last_pose.pose.position.x;
                     double y = last_pose.pose.position.y;
                     double z = last_pose.pose.position.z;
-
-
                     fusion_error_sum ++;
                     fusion_error = fusion_error + sqrt(pow((e-x),2)+ pow((n-y),2));
                     fusion_error_average = fusion_error / fusion_error_sum;
-                    ROS_INFO("fusion error(average): %f", fusion_error_average);
+                    fusion_error_all.push_back(sqrt(pow((e-x),2)+ pow((n-y),2)));
+                    std_msgs::Float64 fusion_error_msg;
+                    std_msgs::Float64 fusion_x_relative_msg;
+                    std_msgs::Float64 fusion_y_relative_msg;
+                    fusion_error_msg.data = sqrt(pow((e-x),2)+ pow((n-y),2));
+                    fusion_error_pub.publish(fusion_error_msg);
+                    fusion_x_relative_msg.data = e-x;
+                    fusion_y_relative_msg.data = n-y;
+                    fusion_x_relative_pub.publish(fusion_x_relative_msg);
+                    fusion_y_relative_pub.publish(fusion_y_relative_msg);
+                    ROS_INFO("fusion error: %f", fusion_error_average);
+                    publish_filtered_position_Marker(x,y,z, marker_filtered_id_++);
 
 
                     const geometry_msgs::PoseStamped& last_pose0 = filtered_odom_local_abs_path_.poses.back();
                     x = last_pose0.pose.position.x;
                     y = last_pose0.pose.position.y;
                     z = last_pose0.pose.position.z;
-
-
                     fusion_error_relative_sum ++;
                     fusion_error_relative = fusion_error_relative + sqrt(pow((e-x),2)+ pow((n-y),2));
                     fusion_error_relative_average = fusion_error_relative / fusion_error_relative_sum;
-                    ROS_INFO("fusion error relative(average): %f", fusion_error_relative_average);
+                    fusion_error_relative_all.push_back(sqrt(pow((e-x),2)+ pow((n-y),2)));
+                    std_msgs::Float64 fusion_error_relative_msg;
+                    fusion_error_relative_msg.data = sqrt(pow((e-x),2)+ pow((n-y),2));
+                    fusion_error_relative_pub.publish(fusion_error_relative_msg);
+                    ROS_INFO("fusion error relative: %f", fusion_error_relative_average);
+
+
+
+                    const geometry_msgs::PoseStamped& last_pose1 = vio_path_.poses.back();
+                    x = last_pose1.pose.position.x;
+                    y = last_pose1.pose.position.y;
+                    z = last_pose1.pose.position.z;
+                    vio_error_relative_sum ++;
+                    vio_error_relative = vio_error_relative + sqrt(pow((e-x),2)+ pow((n-y),2));
+                    vio_error_relative_average = vio_error_relative / vio_error_relative_sum;
+                    vio_error_relative_all.push_back(sqrt(pow((e-x),2)+ pow((n-y),2)));
+                    std_msgs::Float64 vio_error_relative_msg;
+                    std_msgs::Float64 vio_x_relative_msg;
+                    std_msgs::Float64 vio_y_relative_msg;
+                    vio_error_relative_msg.data = sqrt(pow((e-x),2)+ pow((n-y),2));
+                    vio_error_relative_pub.publish(vio_error_relative_msg);
+                        
+                    vio_x_relative_msg.data = e-x;
+                    vio_y_relative_msg.data = n-y;
+                    vio_x_relative_pub.publish(vio_x_relative_msg);
+                    vio_y_relative_pub.publish(vio_y_relative_msg);
+                    
+                    ROS_INFO("vio error: %f", vio_error_relative_average);
+
+
+                    fusion_and_vio_error_time.push_back(ros::Time().now().toSec());
+
+
 
 
                     
-                    publish_filtered_position_Marker(x,y,z, marker_filtered_id_++);
+                    const geometry_msgs::PoseStamped& last_pose2 = raw_gps_path_.poses.back();
+                    ros::Duration time_diff = ros::Time::now() - last_pose2.header.stamp;
+                    double time_diff_sec = time_diff.toSec();
+                    
+                    if (std::abs(time_diff_sec) < 1.0){
+                        double x,y,z;
+                        x = last_pose2.pose.position.x;
+                        y = last_pose2.pose.position.y;
+                        z = last_pose2.pose.position.z;
+
+
+
+                        gps_error_relative_sum ++;
+                        gps_error_relative = gps_error_relative + sqrt(pow((e-x),2)+ pow((n-y),2));
+                        gps_error_relative_average = gps_error_relative / gps_error_relative_sum;
+                        gps_error_relative_all.push_back(sqrt(pow((e-x),2)+ pow((n-y),2)));
+                        ROS_INFO("gps error: %f", gps_error_relative_average);
+
+                        gps_error_time.push_back(ros::Time().now().toSec());
+
+                        std_msgs::Float64 gps_error_relative_msg;
+                        std_msgs::Float64 gps_x_relative_msg;
+                        std_msgs::Float64 gps_y_relative_msg;
+                   
+                        gps_error_relative_msg.data = sqrt(pow((e-x),2)+ pow((n-y),2));
+                        gps_x_relative_msg.data = e-x;
+                        gps_y_relative_msg.data = n-y;
+                        gps_error_relative_pub.publish(gps_error_relative_msg);
+                        gps_x_relative_pub.publish(gps_x_relative_msg);
+                        gps_y_relative_pub.publish(gps_y_relative_msg);
+                    
+
+                    }
+
+                    
+                    
                 }
 
-                // ROS_INFO("Published marker %zu at ENU: [%f, %f, %f]", kml_current_pose_index_, e, n, u);
-
-                // Move to the next pose
                 kml_current_pose_index_++;
             }
         }
+    }
+
+    void PlotFigure(){
+
     }
 };
 

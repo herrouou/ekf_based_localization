@@ -2,7 +2,7 @@
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
 <Document>
 	<name>Unbenanntes Projekt</name>
-	<gx:CascadingStyle kml:id="__managed_style_25A49B615E35A94451D8">
+	<gx:CascadingStyle kml:id="__managed_style_22E58BC40C35D97FB0E7">
 		<Style>
 			<IconStyle>
 				<scale>1.2</scale>
@@ -25,7 +25,7 @@
 			</BalloonStyle>
 		</Style>
 	</gx:CascadingStyle>
-	<gx:CascadingStyle kml:id="__managed_style_1F91F79B4A35A94451D8">
+	<gx:CascadingStyle kml:id="__managed_style_197E0F265235D97FB0E7">
 		<Style>
 			<IconStyle>
 				<Icon>
@@ -47,32 +47,32 @@
 			</BalloonStyle>
 		</Style>
 	</gx:CascadingStyle>
-	<StyleMap id="__managed_style_0A307EB19B35A94451D8">
+	<StyleMap id="__managed_style_0E6BE13E3B35D97FB0E7">
 		<Pair>
 			<key>normal</key>
-			<styleUrl>#__managed_style_1F91F79B4A35A94451D8</styleUrl>
+			<styleUrl>#__managed_style_197E0F265235D97FB0E7</styleUrl>
 		</Pair>
 		<Pair>
 			<key>highlight</key>
-			<styleUrl>#__managed_style_25A49B615E35A94451D8</styleUrl>
+			<styleUrl>#__managed_style_22E58BC40C35D97FB0E7</styleUrl>
 		</Pair>
 	</StyleMap>
-	<Placemark id="051D3EDC7135A94451D6">
+	<Placemark id="0B2502ECF835D97FB0E4">
 		<name>Unbenannter Pfad</name>
 		<LookAt>
-			<longitude>11.57397794774382</longitude>
-			<latitude>48.13914517418033</latitude>
-			<altitude>519.883160652707</altitude>
-			<heading>-6.256628439279288</heading>
-			<tilt>10.10555407229759</tilt>
+			<longitude>11.58411936994744</longitude>
+			<latitude>48.17365466188566</latitude>
+			<altitude>507.3347391632161</altitude>
+			<heading>16.87400276191426</heading>
+			<tilt>0</tilt>
 			<gx:fovy>35</gx:fovy>
-			<range>72.28195108336877</range>
+			<range>2048.512995625497</range>
 			<altitudeMode>absolute</altitudeMode>
 		</LookAt>
-		<styleUrl>#__managed_style_0A307EB19B35A94451D8</styleUrl>
+		<styleUrl>#__managed_style_0E6BE13E3B35D97FB0E7</styleUrl>
 		<LineString>
 			<coordinates>
-				11.57658648845882,48.14104599146173,0 11.5765406844922,48.14094587957263,0 11.57645507045737,48.14076738733475,0 11.57635620793261,48.140566973639,0 11.57629055638471,48.1404452838941,0 11.57608903312965,48.14006874189607,0 11.57600064769116,48.1399022267153,0 11.57585853837053,48.13971896986926,0 11.57567866173926,48.13940687346626,0 11.5756208293229,48.1392960769727,0 11.57555963766028,48.13916838459273,0 11.57549349156186,48.13902076467509,0 11.57525456462215,48.1390083425376,0 11.57481103729059,48.13904679613244,0 11.57465843053134,48.1390619281788,0 11.5744063600639,48.13908063127564,0 11.57414136569392,48.13908583827899,0 
+				11.59336118805338,48.1727414558372,0 11.59322260689962,48.17280538952944,0 11.59298837241879,48.17292092107773,0 11.59277803003774,48.17301273363462,0 11.59263020389137,48.17306502512598,0 11.59250040100034,48.1731424084665,0 11.59221910815254,48.17328500324593,0 11.59199858068312,48.17339614976579,0 11.5918751403328,48.17345529443518,0 11.59158133864528,48.17346478545767,0 11.59140322792988,48.17345499873323,0 11.59127249118785,48.17344970549935,0 11.59115325261028,48.173441558314,0 11.59103651257498,48.17343874681769,0 11.59087563400038,48.17342841722059,0 11.59074990370666,48.17342306551823,0 
 			</coordinates>
 		</LineString>
 	</Placemark>

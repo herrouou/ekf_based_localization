@@ -784,11 +784,11 @@ namespace RobotLocalization
      * transform to compute *and broadcast* map->odom.
      *
      * The state estimation nodes in robot_localization therefore have two "modes."
-      * If your world_frame parameter value matches the odom_frame parameter value,
-      * then robot_localization will assume someone else is broadcasting a transform
-      * from odom_frame->base_link_frame, and it will compute the
-      * map_frame->odom_frame transform. Otherwise, it will simply compute the
-      * odom_frame->base_link_frame transform.
+     * If your world_frame parameter value matches the odom_frame parameter value,
+     * then robot_localization will assume someone else is broadcasting a transform
+     * from odom_frame->base_link_frame, and it will compute the
+     * map_frame->odom_frame transform. Otherwise, it will simply compute the
+     * odom_frame->base_link_frame transform.
      *
      * The default is the latter behavior (broadcast of odom->base_link).
      */
@@ -3171,86 +3171,19 @@ namespace RobotLocalization
   template<typename T>
   bool RosFilter<T>::validateFilterOutput(const nav_msgs::Odometry &message)
   {
-    // return !std::isnan(message.pose.pose.position.x) && !std::isinf(message.pose.pose.position.x) &&
-    //        !std::isnan(message.pose.pose.position.y) && !std::isinf(message.pose.pose.position.y) &&
-    //        !std::isnan(message.pose.pose.position.z) && !std::isinf(message.pose.pose.position.z) &&
-    //        !std::isnan(message.pose.pose.orientation.x) && !std::isinf(message.pose.pose.orientation.x) &&
-    //        !std::isnan(message.pose.pose.orientation.y) && !std::isinf(message.pose.pose.orientation.y) &&
-    //        !std::isnan(message.pose.pose.orientation.z) && !std::isinf(message.pose.pose.orientation.z) &&
-    //        !std::isnan(message.pose.pose.orientation.w) && !std::isinf(message.pose.pose.orientation.w) &&
-    //        !std::isnan(message.twist.twist.linear.x) && !std::isinf(message.twist.twist.linear.x) &&
-    //        !std::isnan(message.twist.twist.linear.y) && !std::isinf(message.twist.twist.linear.y) &&
-    //        !std::isnan(message.twist.twist.linear.z) && !std::isinf(message.twist.twist.linear.z) &&
-    //        !std::isnan(message.twist.twist.angular.x) && !std::isinf(message.twist.twist.angular.x) &&
-    //        !std::isnan(message.twist.twist.angular.y) && !std::isinf(message.twist.twist.angular.y) &&
-    //        !std::isnan(message.twist.twist.angular.z) && !std::isinf(message.twist.twist.angular.z);
-    bool valid = true; // 假设初始状态为有效
-
-    // 检查位置 (position)
-    if (std::isnan(message.pose.pose.position.x) || std::isinf(message.pose.pose.position.x)) {
-        ROS_INFO("Invalid value detected in position.x: %f", message.pose.pose.position.x);
-        valid = false;
-    }
-    if (std::isnan(message.pose.pose.position.y) || std::isinf(message.pose.pose.position.y)) {
-        ROS_INFO("Invalid value detected in position.y: %f", message.pose.pose.position.y);
-        valid = false;
-    }
-    if (std::isnan(message.pose.pose.position.z) || std::isinf(message.pose.pose.position.z)) {
-        ROS_INFO("Invalid value detected in position.z: %f", message.pose.pose.position.z);
-        valid = false;
-    }
-
-    // 检查方向 (orientation)
-    if (std::isnan(message.pose.pose.orientation.x) || std::isinf(message.pose.pose.orientation.x)) {
-        ROS_INFO("Invalid value detected in orientation.x: %f", message.pose.pose.orientation.x);
-        valid = false;
-    }
-    if (std::isnan(message.pose.pose.orientation.y) || std::isinf(message.pose.pose.orientation.y)) {
-        ROS_INFO("Invalid value detected in orientation.y: %f", message.pose.pose.orientation.y);
-        valid = false;
-    }
-    if (std::isnan(message.pose.pose.orientation.z) || std::isinf(message.pose.pose.orientation.z)) {
-        ROS_INFO("Invalid value detected in orientation.z: %f", message.pose.pose.orientation.z);
-        valid = false;
-    }
-    if (std::isnan(message.pose.pose.orientation.w) || std::isinf(message.pose.pose.orientation.w)) {
-        ROS_INFO("Invalid value detected in orientation.w: %f", message.pose.pose.orientation.w);
-        valid = false;
-    }
-
-    // 检查线速度 (linear velocity)
-    if (std::isnan(message.twist.twist.linear.x) || std::isinf(message.twist.twist.linear.x)) {
-        ROS_INFO("Invalid value detected in linear.x: %f", message.twist.twist.linear.x);
-        valid = false;
-    }
-    if (std::isnan(message.twist.twist.linear.y) || std::isinf(message.twist.twist.linear.y)) {
-        ROS_INFO("Invalid value detected in linear.y: %f", message.twist.twist.linear.y);
-        valid = false;
-    }
-    if (std::isnan(message.twist.twist.linear.z) || std::isinf(message.twist.twist.linear.z)) {
-        ROS_INFO("Invalid value detected in linear.z: %f", message.twist.twist.linear.z);
-        valid = false;
-    }
-
-    // 检查角速度 (angular velocity)
-    if (std::isnan(message.twist.twist.angular.x) || std::isinf(message.twist.twist.angular.x)) {
-        ROS_INFO("Invalid value detected in angular.x: %f", message.twist.twist.angular.x);
-        valid = false;
-    }
-    if (std::isnan(message.twist.twist.angular.y) || std::isinf(message.twist.twist.angular.y)) {
-        ROS_INFO("Invalid value detected in angular.y: %f", message.twist.twist.angular.y);
-        valid = false;
-    }
-    if (std::isnan(message.twist.twist.angular.z) || std::isinf(message.twist.twist.angular.z)) {
-        ROS_INFO("Invalid value detected in angular.z: %f", message.twist.twist.angular.z);
-        valid = false;
-    }
-
-    // 返回最终结果
-    if (!valid) {
-        ROS_WARN("Detected NaN or Inf in filter output.");
-    }
-    return valid;
+    return !std::isnan(message.pose.pose.position.x) && !std::isinf(message.pose.pose.position.x) &&
+           !std::isnan(message.pose.pose.position.y) && !std::isinf(message.pose.pose.position.y) &&
+           !std::isnan(message.pose.pose.position.z) && !std::isinf(message.pose.pose.position.z) &&
+           !std::isnan(message.pose.pose.orientation.x) && !std::isinf(message.pose.pose.orientation.x) &&
+           !std::isnan(message.pose.pose.orientation.y) && !std::isinf(message.pose.pose.orientation.y) &&
+           !std::isnan(message.pose.pose.orientation.z) && !std::isinf(message.pose.pose.orientation.z) &&
+           !std::isnan(message.pose.pose.orientation.w) && !std::isinf(message.pose.pose.orientation.w) &&
+           !std::isnan(message.twist.twist.linear.x) && !std::isinf(message.twist.twist.linear.x) &&
+           !std::isnan(message.twist.twist.linear.y) && !std::isinf(message.twist.twist.linear.y) &&
+           !std::isnan(message.twist.twist.linear.z) && !std::isinf(message.twist.twist.linear.z) &&
+           !std::isnan(message.twist.twist.angular.x) && !std::isinf(message.twist.twist.angular.x) &&
+           !std::isnan(message.twist.twist.angular.y) && !std::isinf(message.twist.twist.angular.y) &&
+           !std::isnan(message.twist.twist.angular.z) && !std::isinf(message.twist.twist.angular.z);
   }
 
   template<typename T>

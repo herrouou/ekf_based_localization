@@ -56,6 +56,7 @@ namespace RobotLocalization
   void Ekf::correct(const Measurement &measurement)
   {
 
+
   
     FB_DEBUG("---------------------- Ekf::correct ----------------------\n" <<
              "State is:\n" << state_ << "\n"
@@ -171,16 +172,29 @@ namespace RobotLocalization
     std::string node_name = ros::this_node::getName();
 
     
-    float innovation_vio_refer = 5;
+    float innovation_vio_refer = 3;
     float innovation_vio_ = 0;
-
+    float innovation_gps_refer = 15;
+    float innovation_gps_ = 0;
 
 
     if (updateIndices[0] == 6){
-        // ROS_INFO_STREAM("------------------------------------:" << innovationSubset);
         innovation_vio_ = sqrt(pow(innovationSubset[0],2) + pow(innovationSubset[1],2) + pow(innovationSubset[2],2));
+    }
 
-      }
+
+    // if (updateIndices[0] == 0){
+    //     // ROS_INFO_STREAM("------------------------------------:" << innovationSubset);
+    //     innovation_gps_ = sqrt(pow(innovationSubset[0],2) + pow(innovationSubset[1],2) + pow(innovationSubset[2],2));
+        
+    //     if(innovation_gps_ > innovation_gps_refer){
+    //       ROS_INFO_STREAM("REJECT-----------------------------------------------GPS-------------------------------------");
+          
+    //     }else{
+    //       ROS_INFO_STREAM("ACCEPT++++++++++++++++++++++++++++++++++++++++++++GPS+++++++++++++++++++++++++++++++++++++++++++++++");
+    //     }
+    //     ROS_INFO_STREAM(innovation_gps_);
+    // }
 
 
 
@@ -203,15 +217,12 @@ namespace RobotLocalization
         }
       }
     }
-    // (2) Check Mahalanobis distance between mapped measurement and state.
-    // if (checkMahalanobisThreshold(innovationSubset, hphrInv, measurement.mahalanobisThresh_))
-    if (innovation_vio_ < innovation_vio_refer) //  && innovation_gps_ < innovation_gps_refer
-    {
+    // check the outlier
+    if ((abs(innovation_vio_) < innovation_vio_refer)&& (innovation_gps_ < innovation_gps_refer)){ //   && (innovation_gps_ < innovation_gps_refer)
       // (3) Apply the gain to the difference between the state and measurement: x = x + K(z - Hx)
       state_.noalias() += kalmanGainSubset * innovationSubset;
 
-      // (3) Apply the gain to the difference between the state and measurement: x = x + K(z - Hx)
-      state_.noalias() += kalmanGainSubset * innovationSubset;
+
 
       // (4) Update the estimate error covariance using the Joseph form: (I - KH)P(I - KH)' + KRK'
       Eigen::MatrixXd gainResidual = identity_;
@@ -230,6 +241,8 @@ namespace RobotLocalization
 
       
     }
+
+
     
   }
 
@@ -237,7 +250,7 @@ namespace RobotLocalization
   {
 
 
-    ROS_INFO_STREAM("1");
+
     FB_DEBUG("---------------------- Ekf::predict ----------------------\n" <<
              "delta is " << delta << "\n" <<
              "state is " << state_ << "\n");
@@ -373,11 +386,19 @@ namespace RobotLocalization
 
     Eigen::MatrixXd *processNoiseCovariance = &processNoiseCovariance_;
 
+
+
+
+
     if (useDynamicProcessNoiseCovariance_)
     {
       computeDynamicProcessNoiseCovariance(state_, delta);
       processNoiseCovariance = &dynamicProcessNoiseCovariance_;
     }
+
+
+
+
 
     // (1) Apply control terms, which are actually accelerations
     state_(StateMemberVroll) += controlAcceleration_(ControlMemberVroll) * delta;
@@ -392,10 +413,16 @@ namespace RobotLocalization
       controlAcceleration_(ControlMemberVz) : state_(StateMemberAz));
 
     // (2) Project the state forward: x = Ax + Bu (really, x = f(x, u))
+
     state_ = transferFunction_ * state_;
+
+
+
+
 
     // Handle wrapping
     wrapStateAngles();
+
 
     FB_DEBUG("Predicted state is:\n" << state_ <<
              "\nCurrent estimate error covariance is:\n" <<  estimateErrorCovariance_ << "\n");
@@ -404,10 +431,18 @@ namespace RobotLocalization
     estimateErrorCovariance_ = (transferFunctionJacobian_ *
                                 estimateErrorCovariance_ *
                                 transferFunctionJacobian_.transpose());
+
+
     estimateErrorCovariance_.noalias() += delta * (*processNoiseCovariance);
+
+
+
 
     FB_DEBUG("Predicted estimate error covariance is:\n" << estimateErrorCovariance_ <<
              "\n\n--------------------- /Ekf::predict ----------------------\n");
+
+
+    
   }
 
 }  // namespace RobotLocalization
