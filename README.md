@@ -47,7 +47,7 @@ data_publish/
 Copy files in one of the folders and paste them into the data folder.
 
 ## Configuration
-The configuration file is in robot_lacalization/config, ekf_global.yaml is only for global fusion, ekf_local is only for local fusion. ekf_local_global_common.yaml is for common settings.
+The configuration file is in ```bash robot_lacalization/config ```, ekf_global.yaml is only for global fusion, ekf_local is only for local fusion. ekf_local_global_common.yaml is for common settings.
 
 ## Run the EKF Fusion
 
