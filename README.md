@@ -45,3 +45,9 @@ data_publish/
     ┗━ ...
 ```
 Copy files in one of the folders and paste them into the data folder.
+
+## Run the EKF Fusion
+
+```bash
+ roslaunch robot_localization ekf.launch
+```
